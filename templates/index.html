@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Retrieve — Lost things, found connections{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="pulse"></span> GOOD THINGS FIND THEIR WAY BACK</div>
+    <h1>Lost something?<br><em>Let's bring it home.</em></h1>
+    <p class="hero-lede">The little things carry big stories. Find a missing favourite, return something you found, or help someone in your corner of the world.</p>
+    <div class="hero-actions"><a class="button primary" href="{{ url_for('report') }}"><span class="button-icon">＋</span> Report an item <span class="button-arrow">↗</span></a><a class="button secondary" href="#listings">Explore the board <span>↓</span></a></div>
+    <div class="trust-line"><span class="trust-stamp">✳</span><span><b>A little kindness goes a long way.</b><small>Community-powered. People-first.</small></span></div>
+  </div>
+  <div class="hero-art" aria-label="Illustration of items waiting to be reunited">
+    <div class="hero-blob blob-one"></div><div class="hero-blob blob-two"></div><div class="hero-sun"></div>
+    <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+    <div class="hero-object object-bag"><span>🎒</span></div><div class="hero-object object-keys"><span>🔑</span></div><div class="hero-object object-wallet"><span>👛</span></div>
+    <div class="floating-note note-one"><span class="note-icon peach">✦</span><span><b>One small reunion</b><small>can make someone's day</small></span></div>
+    <div class="floating-note note-two"><span class="note-icon dark">✓</span><span><b>Found with care</b><small>Back to its person</small></span></div>
+    <span class="hero-doodle doodle-one">✳</span><span class="hero-doodle doodle-two">✦</span>
+  </div>
+  <div class="hero-bottomline"><span>01 / COMMUNITY BOARD</span><span>LOST · FOUND · REUNITED</span></div>
+</section>
+<section class="category-strip" aria-label="Browse categories">
+  <div class="category-intro"><span class="section-kicker">A PLACE FOR EVERY LITTLE THING</span><h2>What are we<br>looking for today?</h2></div>
+  <div class="category-chips">
+    {% for c,emoji,cls in [('Electronics','⌁','mint'),('Documents','▤','lilac'),('Wallets','◒','peach'),('Keys','⚿','butter'),('Bags','♧','sage'),('Clothing','✳','rose'),('Jewellery','✧','lilac'),('Pets','♡','peach'),('Other','＋','stone')] %}
+    <a class="category-chip {{ cls }}" href="{{ url_for('index', category=c) }}"><span>{{ emoji }}</span><b>{{ c }}</b><i>↗</i></a>
+    {% endfor %}
+  </div>
+</section>
+<section class="search-panel" id="listings">
+  <div class="search-heading"><span class="section-kicker">THE COMMUNITY BOARD</span><h2>Every item has a way back.</h2><p>Search recent reports from your community.</p></div>
+  <form class="search-form" method="get" action="{{ url_for('index') }}">
+    <label class="search-box"><span>⌕</span><input name="q" value="{{ q }}" placeholder="Try “black backpack” or “library”" aria-label="Search items"></label>
+    <select name="type" aria-label="Report type"><option value="">Lost + found</option><option value="lost" {% if selected_type=='lost' %}selected{% endif %}>Lost items</option><option value="found" {% if selected_type=='found' %}selected{% endif %}>Found items</option></select>
+    <select name="category" aria-label="Category"><option value="">All categories</option>{% for c in categories %}<option value="{{ c }}" {% if selected_category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+    <button class="button primary" type="submit">Find an item <span>↗</span></button>
+  </form>
+</section>
+<section class="listing-section">
+  <div class="section-heading"><div><span class="section-kicker">FRESH FROM THE COMMUNITY</span><h2>Recently reported <span class="count">{{ items|length }}</span></h2></div><a class="text-link" href="{{ url_for('report') }}">Add a report <span>↗</span></a></div>
+  {% if items %}<div class="item-grid">{% for item in items %}
+    <a class="item-card" href="{{ url_for('item_detail', item_id=item.id) }}">
+      <div class="item-image">
+        {% if item.image_filename %}<img loading="lazy" src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" alt="{{ item.title }}">{% else %}<div class="image-placeholder"><span>{{ {'Electronics':'🎧','Documents':'📄','Wallets':'👛','Keys':'🔑','Bags':'🎒','Clothing':'🧥','Jewellery':'💍','Pets':'🐾','Other':'📦'}.get(item.category, '📦') }}</span><small>WAITING TO BE FOUND</small></div>{% endif %}
+        <span class="type-pill {{ item.item_type }}">{% if item.item_type == 'lost' %}Looking for{% else %}Found{% endif %}</span><span class="image-star">✳</span>
+      </div>
+      <div class="item-info"><div class="item-meta"><span>{{ item.category }}</span><span>·</span><span>{{ item.created_at.strftime('%d %b') }}</span></div><h3>{{ item.title }}</h3><p>{{ item.description|truncate(100) }}</p><div class="item-bottom"><span>⌖ &nbsp;{{ item.location }}</span><span class="card-arrow">↗</span></div></div>
+    </a>{% endfor %}</div>
+  {% else %}<div class="empty-state"><span>⌕</span><h3>No items on this page just yet.</h3><p>Try a different search, or start the first reunion in your community.</p><a class="button primary" href="{{ url_for('report') }}">Create a report <span>↗</span></a></div>{% endif %}
+</section>
+<section class="bottom-cta"><div class="cta-orb">✳</div><div><span class="section-kicker">BE SOMEONE'S GOOD NEWS</span><h2>Found something?<br><em>Let's get it home.</em></h2><p>Someone out there is hoping to see it again.</p></div><a class="button cta-light" href="{{ url_for('report') }}">Report a found item <span>↗</span></a></section>
+{% endblock %}
